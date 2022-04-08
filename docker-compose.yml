@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+    notebook:
+        image: jupyter/datascience-notebook
+        secrets:
+            - mssql_username
+            - mssql_password
+        volumes:
+            - C:/my_full_directory/data:/home/jovyan/data
+            - C:/my_full_directory/logs:/home/jovyan/logs
+            - ./secrets:/home/jovyan/secrets
+        ports:
+            - 666:8888
+        container_name: example_notebook
+        environment:
+            - PASSWORD="notebook"
+    mssql_server_db:
+        image: mcr.microsoft.com/mssql/server:latest
+        ports: ["667:1433"]
+        #ports: ["1433:1433"]
+        volumes:
+            - C:/my_full_directory:/var/opt/mssql/data
+        environment:
+            - MSSQL_SA_PASSWORD_FILE=/run/secrets/mssql_password
+            - ACCEPT_EULA=Y
+        secrets:
+            - mssql_password
+        restart: unless-stopped
+secrets:
+  mssql_username:
+    file: ./secrets/mssql_username
+  mssql_password:
+    file: ./secrets/mssql_password
